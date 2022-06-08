@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS auditoriums;
+
+CREATE TABLE auditoriums(
+    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    seats INT NOT NULL
+);
