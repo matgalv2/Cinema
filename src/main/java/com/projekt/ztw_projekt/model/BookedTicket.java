@@ -1,6 +1,8 @@
 package com.projekt.ztw_projekt.model;
 
 
+import com.projekt.ztw_projekt.dto.BookedTicketRequest;
+import com.projekt.ztw_projekt.repositories.AssignmentRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +25,11 @@ public class BookedTicket {
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "assignment_id")
     private Assignment assignment;
+
+    public void updateWithRequest(BookedTicketRequest request, Assignment assignment){
+        seatNumber = request.getSeatNumber();
+        code = request.getCode();
+        this.assignment = assignment;
+    }
 
 }

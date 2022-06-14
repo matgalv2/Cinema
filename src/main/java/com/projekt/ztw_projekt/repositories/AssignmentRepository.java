@@ -11,4 +11,5 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Integer>
     boolean existsByAuditoriumIdAndStartsAt(Integer auditoriumID, Time startsAt);
     boolean existsByMovieIdAndStartsAt(Integer movieID, Time startsAt);
     List<Assignment> findByMovieId(int id);
+    Assignment findByMovieIdAndStartsAt(int id, Time startsAt);
 }

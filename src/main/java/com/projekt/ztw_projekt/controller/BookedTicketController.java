@@ -1,26 +1,29 @@
 package com.projekt.ztw_projekt.controller;
 
 
+import com.projekt.ztw_projekt.dto.BookedTicketRequest;
 import com.projekt.ztw_projekt.model.BookedTicket;
+import com.projekt.ztw_projekt.repositories.AssignmentRepository;
 import com.projekt.ztw_projekt.repositories.BookedTicketRepository;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
-
+@AllArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class BookedTicketController {
     private static final Logger logger = LoggerFactory.getLogger(MovieController.class);
     private final BookedTicketRepository bookedTicketRepository;
+    private final AssignmentRepository assignmentRepository;
 
-    public BookedTicketController(BookedTicketRepository repository) {
-        this.bookedTicketRepository = repository;
-    }
+
 
     @GetMapping(value="/booked-tickets")
     public ResponseEntity<?> readAllBookedTickets() {
@@ -41,8 +44,14 @@ public class BookedTicketController {
     }
 
     @PostMapping("/booked-tickets")
-    public BookedTicket createMovie(@RequestBody @Valid BookedTicket newBookedTicket){
-       return bookedTicketRepository.save(newBookedTicket);
+    public ResponseEntity<?> createMovie(@RequestBody @Valid BookedTicketRequest request){
+       if(!assignmentRepository.existsByMovieIdAndStartsAt(request.getMovieId(), request.getStartsAt()))
+            return ResponseEntity.badRequest().build();
+       else{
+           BookedTicket bookedTicket = new BookedTicket();
+           bookedTicket.updateWithRequest(request, assignmentRepository.findByMovieIdAndStartsAt(request.getMovieId(), request.getStartsAt()));
+           return ResponseEntity.created(URI.create("/" + bookedTicketRepository.save(bookedTicket).getId())).body(bookedTicket);
+       }
     }
 
 //    @PutMapping(value = "/booked-tickets/{id}")
