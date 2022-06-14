@@ -8,12 +8,15 @@ import com.projekt.ztw_projekt.repositories.AssignmentRepository;
 import com.projekt.ztw_projekt.repositories.AuditoriumRepository;
 import com.projekt.ztw_projekt.repositories.MovieRepository;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,24 +32,34 @@ public class AssignmentController {
     private final AuditoriumRepository auditoriumRepository;
 
     @GetMapping(value="/assignments")
-    public List<Assignment> readAllAssignments() {
-        return assignmentRepository.findAll();
+    public ResponseEntity<?> readAllAssignments() {
+        return ResponseEntity.ok(assignmentRepository.findAll());
     }
 
     @GetMapping(value = "/assignments/{id}")
-    public Assignment readAssignmentById(@RequestParam int id) {
-        return assignmentRepository.getById(id);
+    public ResponseEntity<?> readAssignmentById(@RequestParam int id) {
+        return assignmentRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping(value = "/assignments/movie-{id}")
-    public List<Assignment> readAllAssignmentsByMovieId(@PathVariable int id){;
-        return assignmentRepository.findAll().stream().filter(ass -> ass.getMovie().getId() == id).toList();
+    @GetMapping(value = "/assignments/movieID={id}")
+    public List<Assignment> readAllAssignmentsByMovieId(@PathVariable int id){
+        return assignmentRepository.findAll().stream()
+                .filter(assignment -> assignment.getMovie().getId() == id)
+                .toList();
     }
 
 
 
     @PostMapping("/assignments")
-    public Assignment createAssignment(@RequestBody AssignmentRequest request) {
+    public ResponseEntity<?> createAssignment(@RequestBody AssignmentRequest request) {
+
+        if(!movieRepository.existsById(request.getMovieId()) ||
+                !auditoriumRepository.existsById(request.getAuditoriumId()) ||
+                assignmentRepository.existsByAuditoriumIdAndStartsAt(request.getAuditoriumId(), request.getStartsAt()) ||
+                assignmentRepository.existsByMovieIdAndStartsAt(request.getMovieId(), request.getStartsAt()))
+            return ResponseEntity.badRequest().build();
+
+
         Movie movie = movieRepository.getById(request.getMovieId());
         Auditorium auditorium = auditoriumRepository.getById(request.getAuditoriumId());
         Assignment assignment = new Assignment();
@@ -55,22 +68,28 @@ public class AssignmentController {
         assignment.setEndDate(request.getEndDate());
         assignment.setAuditorium(auditorium);
         assignment.setMovie(movie);
-        return assignmentRepository.save(assignment);
+        Assignment added = assignmentRepository.save(assignment);
+
+        return ResponseEntity.created(URI.create("/" + added.getId())).body(added);
     }
 
     @PutMapping(value = "/assignments/{id}")
-    public Assignment updateAssignment(@RequestBody @Valid Assignment updatedAssignment) {
+    public ResponseEntity<?> updateAssignment(@PathVariable int id, @RequestBody @Valid Assignment updatedAssignment) {
+        if(!assignmentRepository.existsById(id))
+            return ResponseEntity.notFound().build();
+
         Assignment assignment = assignmentRepository.getById(updatedAssignment.getId());
         assignment.update(updatedAssignment);
-        return assignmentRepository.save(assignment);
+        return ResponseEntity.ok().body(assignmentRepository.save(assignment));
     }
 
     @Transactional
     @DeleteMapping(value = "/assignments/{id}")
-    public void removeAssignment(@PathVariable int id) {
-        assignmentRepository.findById(id).ifPresent(assignmentRepository::delete);
-//        assignmentRepository.deleteById(id);
+    public ResponseEntity<?> removeAssignment(@PathVariable int id) {
+        if(!assignmentRepository.existsById(id))
+            return ResponseEntity.notFound().build();
+
+        assignmentRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
-
-
 }

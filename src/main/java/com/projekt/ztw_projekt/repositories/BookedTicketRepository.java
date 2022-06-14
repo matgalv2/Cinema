@@ -8,10 +8,5 @@ import java.util.Optional;
 
 public interface BookedTicketRepository extends JpaRepository<BookedTicket, Integer> {
 
-//    List<BookedTicket> findAll();
-//    Optional<BookedTicket> findById(Integer id);
-//    boolean existsById(Integer id);
-//    BookedTicket save(BookedTicket entity);
-//    void deleteById(Integer id);
-
+    List<BookedTicket> findAllByCode(String code);
 }
