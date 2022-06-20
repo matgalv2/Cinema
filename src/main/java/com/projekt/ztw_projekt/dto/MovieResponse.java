@@ -8,6 +8,7 @@ import java.util.List;
 
 @Data
 public class MovieResponse {
+    private int id;
     private String name;
     private int duration;
     private String description;
@@ -20,6 +21,7 @@ public class MovieResponse {
     public static MovieResponse MovieResponseByMovie(Movie movie){
         MovieResponse movieResponse = new MovieResponse();
 
+        movieResponse.id = movie.getId();
         movieResponse.name = movie.getName();
         movieResponse.duration = movie.getDuration();
         movieResponse.description = movie.getDescription();

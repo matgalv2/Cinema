@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface BookedTicketRepository extends JpaRepository<BookedTicket, Integer> {
 
     List<BookedTicket> findAllByCode(String code);
+    List<BookedTicket> findAllByAssignmentId(int id);
 }

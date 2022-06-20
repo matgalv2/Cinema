@@ -43,6 +43,16 @@ public class BookedTicketController {
         return ResponseEntity.ok(bookedTicketRepository.findAllByCode(code));
     }
 
+    @GetMapping(value = "/booked-tickets/assignmentID={id}")
+    public ResponseEntity<?> readBookedTicketsByAssignment(@PathVariable int id){
+        return ResponseEntity.ok( bookedTicketRepository
+                .findAllByAssignmentId(id)
+                .stream()
+                .map(BookedTicket::getSeatNumber)
+                .toList());
+
+    }
+
     @PostMapping("/booked-tickets")
     public ResponseEntity<?> createMovie(@RequestBody @Valid BookedTicketRequest request){
        if(!assignmentRepository.existsByMovieIdAndStartsAt(request.getMovieId(), request.getStartsAt()))

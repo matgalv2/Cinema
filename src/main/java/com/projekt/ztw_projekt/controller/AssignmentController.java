@@ -37,7 +37,7 @@ public class AssignmentController {
     }
 
     @GetMapping(value = "/assignments/{id}")
-    public ResponseEntity<?> readAssignmentById(@RequestParam int id) {
+    public ResponseEntity<?> readAssignmentById(@PathVariable int id) {
         return assignmentRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -53,8 +53,7 @@ public class AssignmentController {
     @PostMapping("/assignments")
     public ResponseEntity<?> createAssignment(@RequestBody AssignmentRequest request) {
 
-        if(!movieRepository.existsById(request.getMovieId()) ||
-                !auditoriumRepository.existsById(request.getAuditoriumId()) ||
+        if(!movieRepository.existsById(request.getMovieId()) || !auditoriumRepository.existsById(request.getAuditoriumId()) ||
                 assignmentRepository.existsByAuditoriumIdAndStartsAt(request.getAuditoriumId(), request.getStartsAt()) ||
                 assignmentRepository.existsByMovieIdAndStartsAt(request.getMovieId(), request.getStartsAt()))
             return ResponseEntity.badRequest().build();
