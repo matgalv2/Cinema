@@ -1,0 +1,1 @@
+ALTER TABLE booked_tickets ADD COLUMN movie_date DATE;

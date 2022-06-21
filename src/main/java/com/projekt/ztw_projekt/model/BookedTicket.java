@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.Valid;
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -25,11 +26,12 @@ public class BookedTicket {
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "assignment_id")
     private Assignment assignment;
+    private Date movieDate;
 
     public void updateWithRequest(BookedTicketRequest request, Assignment assignment){
         seatNumber = request.getSeatNumber();
         code = request.getCode();
         this.assignment = assignment;
+        movieDate = request.getMovieDate();
     }
-
 }

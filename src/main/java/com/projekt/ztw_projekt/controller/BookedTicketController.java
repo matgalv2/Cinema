@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.sql.Date;
 import java.util.List;
 
 @AllArgsConstructor
@@ -50,7 +51,15 @@ public class BookedTicketController {
                 .stream()
                 .map(BookedTicket::getSeatNumber)
                 .toList());
+    }
 
+    @GetMapping(value = "/booked-tickets/assignmentID={id}/movieDate={date}")
+    public ResponseEntity<?> readBookedTicketsByAssignmentAndDate(@PathVariable int id, @PathVariable Date date){
+        return ResponseEntity.ok(bookedTicketRepository
+                .findAllByAssignmentIdAndMovieDate(id, date)
+                .stream()
+                .map(BookedTicket::getSeatNumber)
+                .toList());
     }
 
     @PostMapping("/booked-tickets")
